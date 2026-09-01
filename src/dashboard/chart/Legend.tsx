@@ -3,7 +3,7 @@ import { BAND_COLORS, BAND_LABELS, MARKER_COLORS } from "./colors";
 import type { BandKind } from "./types";
 import type { ProduceResult } from "@/api/types";
 
-const BAND_KINDS: BandKind[] = ["runtime", "unplanned-production", "downtime", "stoppage"];
+const BAND_KINDS: BandKind[] = ["runtime", "unplanned-production", "planned-downtime", "downtime", "stoppage"];
 const RESULTS: ProduceResult[] = ["PASS", "FAIL"];
 
 function Swatch({ color }: { color: string }) {

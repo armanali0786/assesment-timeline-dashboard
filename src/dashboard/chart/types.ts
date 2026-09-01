@@ -1,6 +1,6 @@
 import type { ProduceResult } from "@/api/types";
 
-export type BandKind = "runtime" | "unplanned-production" | "downtime" | "stoppage";
+export type BandKind = "runtime" | "unplanned-production" | "planned-downtime" | "downtime" | "stoppage";
 
 export interface Band {
   startMs: number;

@@ -1,4 +1,5 @@
 import type { MachineIntervalsResponse, ProduceBucket, ProduceCount, RuntimeSegment } from "@/api/types";
+import { HOUR_MS } from "@/utils/time";
 import type { Band, BandKind, Marker } from "./types";
 
 function runtimeKind(type: RuntimeSegment["type"]): BandKind {
@@ -9,16 +10,18 @@ function toBand(segment: { start_at: string; end_at: string }, kind: BandKind): 
   return { startMs: Date.parse(segment.start_at), endMs: Date.parse(segment.end_at), kind };
 }
 
+function downtimeKind(type: string): BandKind {
+  return type === "unknown" ? "downtime" : "planned-downtime";
+}
+
 export function buildBands(data: Pick<MachineIntervalsResponse, "runtimes" | "downtimes" | "stoppages">): Band[] {
   const bands = [
     ...data.runtimes.map((segment) => toBand(segment, runtimeKind(segment.type))),
-    ...data.downtimes.map((segment) => toBand(segment, "downtime")),
+    ...data.downtimes.map((segment) => toBand(segment, downtimeKind(segment.type))),
     ...data.stoppages.map((segment) => toBand(segment, "stoppage")),
   ];
   return bands.sort((a, b) => a.startMs - b.startMs);
 }
-
-const HOUR_MS = 60 * 60 * 1000;
 
 /** One marker per hour bucket per result, sized by count — used when "Show individual produces" is off. */
 export function buildCoarseMarkers(produceCounts: ProduceCount[]): Marker[] {

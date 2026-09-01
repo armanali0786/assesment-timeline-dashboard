@@ -4,6 +4,7 @@ import type { BandKind } from "./types";
 export const BAND_COLORS: Record<BandKind, string> = {
   runtime: "#26a69a",
   "unplanned-production": "#c0ca33",
+  "planned-downtime": "#8bc34a",
   downtime: "#ff8a65",
   stoppage: "#7e57c2",
 };
@@ -11,6 +12,7 @@ export const BAND_COLORS: Record<BandKind, string> = {
 export const BAND_LABELS: Record<BandKind, string> = {
   runtime: "Runtime",
   "unplanned-production": "Unplanned Production",
+  "planned-downtime": "Planned Downtime",
   downtime: "Unknown Downtime",
   stoppage: "Minor Stoppage",
 };

@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Alert, Box, CircularProgress, Stack } from "@mui/material";
 import { AppShell } from "@/layout/AppShell";
 import { FilterBar } from "@/dashboard/FilterBar";
 import { TimelineChart } from "@/dashboard/chart/TimelineChart";
+import { HourlySummaryTable } from "@/dashboard/HourlySummaryTable";
+import { buildHourlySummary } from "@/dashboard/bucketing";
 import { useAssetTreeQuery, useCycleTimeMetricsQuery, useMachineIntervalsQuery, useShiftsQuery } from "@/dashboard/useDashboardData";
 import { useShiftTimeRange, useShiftWindowOptions } from "@/dashboard/useShiftWindow";
 import type { DashboardFilters } from "@/dashboard/types";
@@ -54,6 +56,11 @@ export function DashboardPage() {
   const isFetching = intervalsQuery.isFetching || cycleTimeQuery.isFetching;
   const error = intervalsQuery.error ?? cycleTimeQuery.error;
 
+  const hourRows = useMemo(() => {
+    if (!intervalsQuery.data || !timeRange) return null;
+    return buildHourlySummary(intervalsQuery.data, cycleTimeQuery.data ?? [], timeRange);
+  }, [intervalsQuery.data, cycleTimeQuery.data, timeRange]);
+
   return (
     <AppShell>
       <Stack spacing={2}>
@@ -75,17 +82,16 @@ export function DashboardPage() {
         ) : (
           intervalsQuery.data &&
           timeRange && (
-            <TimelineChart
-              intervals={intervalsQuery.data}
-              timeRange={timeRange}
-              showIndividualProduces={filters.showIndividualProduces}
-            />
+            <>
+              <TimelineChart
+                intervals={intervalsQuery.data}
+                timeRange={timeRange}
+                showIndividualProduces={filters.showIndividualProduces}
+              />
+              {hourRows && <HourlySummaryTable rows={hourRows} />}
+            </>
           )
         )}
-
-        <Typography variant="caption" color="text.secondary">
-          cycle-time buckets: {cycleTimeQuery.data?.length ?? 0} · Hourly summary table lands in the next phase.
-        </Typography>
       </Stack>
     </AppShell>
   );
