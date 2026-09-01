@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Box, CircularProgress, Stack } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, LinearProgress, Stack } from "@mui/material";
 import { AppShell } from "@/layout/AppShell";
 import { FilterBar } from "@/dashboard/FilterBar";
 import { TimelineChart } from "@/dashboard/chart/TimelineChart";
 import { HourlySummaryTable } from "@/dashboard/HourlySummaryTable";
+import { EmptyState } from "@/dashboard/EmptyState";
 import { buildHourlySummary } from "@/dashboard/bucketing";
 import { useAssetTreeQuery, useCycleTimeMetricsQuery, useMachineIntervalsQuery, useShiftsQuery } from "@/dashboard/useDashboardData";
 import { useShiftTimeRange, useShiftWindowOptions } from "@/dashboard/useShiftWindow";
+import { describeError } from "@/api/types";
 import type { DashboardFilters } from "@/dashboard/types";
 import { flattenAssetTree, pickDeepestAsset } from "@/utils/assetTree";
 
@@ -55,6 +57,12 @@ export function DashboardPage() {
   const isLoading = intervalsQuery.isLoading || cycleTimeQuery.isLoading;
   const isFetching = intervalsQuery.isFetching || cycleTimeQuery.isFetching;
   const error = intervalsQuery.error ?? cycleTimeQuery.error;
+  const { message: errorMessage, retryable: errorIsRetryable } = describeError(error);
+
+  // The backend always gap-fills `downtimes` for the full window, even when the machine never
+  // ran — so "no runtimes and no produces" is the real signal for an empty shift, not all-empty arrays.
+  const isEmpty =
+    !!intervalsQuery.data && intervalsQuery.data.runtimes.length === 0 && intervalsQuery.data.produce_counts.length === 0;
 
   const hourRows = useMemo(() => {
     if (!intervalsQuery.data || !timeRange) return null;
@@ -73,7 +81,22 @@ export function DashboardPage() {
           refreshing={isFetching}
         />
 
-        {error && <Alert severity="error">{(error as Error).message}</Alert>}
+        {isFetching && !isLoading && <LinearProgress />}
+
+        {error && (
+          <Alert
+            severity="error"
+            action={
+              errorIsRetryable && (
+                <Button color="inherit" size="small" onClick={handleRefresh}>
+                  Retry
+                </Button>
+              )
+            }
+          >
+            {errorMessage}
+          </Alert>
+        )}
 
         {isLoading ? (
           <Box display="flex" justifyContent="center" py={4}>
@@ -81,7 +104,10 @@ export function DashboardPage() {
           </Box>
         ) : (
           intervalsQuery.data &&
-          timeRange && (
+          timeRange &&
+          (isEmpty ? (
+            <EmptyState />
+          ) : (
             <>
               <TimelineChart
                 intervals={intervalsQuery.data}
@@ -90,7 +116,7 @@ export function DashboardPage() {
               />
               {hourRows && <HourlySummaryTable rows={hourRows} />}
             </>
-          )
+          ))
         )}
       </Stack>
     </AppShell>

@@ -1,5 +1,5 @@
 import { BAND_COLORS, MARKER_COLORS } from "./colors";
-import { computeAxisTicks } from "./geometry";
+import { computeAxisTicks, timeToX } from "./geometry";
 import { AXIS_Y, BAND_HEIGHT, BAND_TOP, MARKER_RADIUS } from "./layout";
 import { formatIstTime } from "@/utils/time";
 import type { PaintGeometry } from "./geometry";
@@ -11,7 +11,14 @@ function drawDot(ctx: CanvasRenderingContext2D, x: number, y: number) {
   ctx.fill();
 }
 
-export function paintChart(ctx: CanvasRenderingContext2D, geometry: PaintGeometry, domain: Domain, width: number, height: number) {
+export function paintChart(
+  ctx: CanvasRenderingContext2D,
+  geometry: PaintGeometry,
+  domain: Domain,
+  width: number,
+  height: number,
+  nowMs: number,
+) {
   ctx.clearRect(0, 0, width, height);
 
   for (const rect of geometry.bandRects) {
@@ -43,5 +50,18 @@ export function paintChart(ctx: CanvasRenderingContext2D, geometry: PaintGeometr
     ctx.lineTo(tick.x, AXIS_Y - 14);
     ctx.stroke();
     ctx.fillText(formatIstTime(new Date(tick.ms).toISOString()), tick.x, AXIS_Y);
+  }
+
+  if (nowMs >= domain.fromMs && nowMs <= domain.toMs) {
+    const nowX = timeToX(nowMs, domain, width);
+    ctx.strokeStyle = "#1565c0";
+    ctx.beginPath();
+    ctx.moveTo(nowX, BAND_TOP);
+    ctx.lineTo(nowX, BAND_TOP + BAND_HEIGHT);
+    ctx.stroke();
+
+    ctx.fillStyle = "#1565c0";
+    ctx.font = "bold 10px sans-serif";
+    ctx.fillText("NOW", nowX, BAND_TOP - 4);
   }
 }

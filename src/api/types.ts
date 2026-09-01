@@ -15,6 +15,15 @@ export class ApiError extends Error {
   }
 }
 
+export function describeError(error: unknown): { message: string; retryable: boolean } {
+  if (error instanceof ApiError) {
+    if (error.status === 403) return { message: "Access denied.", retryable: false };
+    if (error.status === 422) return { message: error.message, retryable: false };
+    return { message: error.message, retryable: true };
+  }
+  return { message: "Something went wrong. Please try again.", retryable: true };
+}
+
 export interface LoginRequest {
   username: string;
   password: string;

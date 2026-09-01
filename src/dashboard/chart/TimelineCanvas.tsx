@@ -48,7 +48,7 @@ export function TimelineCanvas({ bands, markers, fullDomain }: TimelineCanvasPro
     canvas.style.height = `${CHART_HEIGHT}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const frame = requestAnimationFrame(() => paintChart(ctx, geometry, domain, width, CHART_HEIGHT));
+    const frame = requestAnimationFrame(() => paintChart(ctx, geometry, domain, width, CHART_HEIGHT, Date.now()));
     return () => cancelAnimationFrame(frame);
   }, [geometry, domain, width]);
 
