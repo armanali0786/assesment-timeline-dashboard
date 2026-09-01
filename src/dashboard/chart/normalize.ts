@@ -43,7 +43,7 @@ export function buildCoarseMarkers(produceCounts: ProduceCount[]): Marker[] {
   return markers.sort((a, b) => a.timeMs - b.timeMs);
 }
 
-/** One marker per part — used when "Show individual produces" is on. first_seen_ts is not sorted, so we sort once here. */
+/** One marker per part, sorted by time (first_seen_ts arrives unsorted). */
 export function buildExactMarkers(produceBuckets: ProduceBucket[]): Marker[] {
   const markers: Marker[] = [];
   for (const bucket of produceBuckets) {

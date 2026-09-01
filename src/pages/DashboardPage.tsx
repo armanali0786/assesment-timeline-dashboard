@@ -59,8 +59,7 @@ export function DashboardPage() {
   const error = intervalsQuery.error ?? cycleTimeQuery.error;
   const { message: errorMessage, retryable: errorIsRetryable } = describeError(error);
 
-  // The backend always gap-fills `downtimes` for the full window, even when the machine never
-  // ran — so "no runtimes and no produces" is the real signal for an empty shift, not all-empty arrays.
+  // downtimes is always gap-filled for the full window, so it's never empty on its own.
   const isEmpty =
     !!intervalsQuery.data && intervalsQuery.data.runtimes.length === 0 && intervalsQuery.data.produce_counts.length === 0;
 

@@ -25,8 +25,7 @@ export function TimelineChart({ intervals, timeRange, showIndividualProduces }: 
     [timeRange],
   );
 
-  // Coarse markers sit at hour-bucket midpoints, not real timestamps, so this is only meaningful
-  // once "Show individual produces" is on.
+  // Coarse markers sit at hour-bucket midpoints, not real timestamps.
   const lastProduceAt = showIndividualProduces && markers.length > 0 ? markers[markers.length - 1].timeMs : null;
 
   return (

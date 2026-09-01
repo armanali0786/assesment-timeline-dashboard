@@ -3,8 +3,6 @@ import type { ApiEnvelope } from "./types";
 import { ApiError } from "./types";
 import { emitUnauthorized, tokenStore } from "./tokenStore";
 
-// Fixed test backend for this assignment — falls back here if a deploy host's env var
-// wasn't set before the build ran (Vite bakes VITE_* vars in at build time).
 const DEFAULT_API_BASE_URL = "https://fractaldmsdev.centralindia.cloudapp.azure.com";
 
 export const httpClient = axios.create({
