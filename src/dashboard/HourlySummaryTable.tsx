@@ -36,6 +36,14 @@ const paramCellSx = {
   whiteSpace: "nowrap" as const,
 };
 
+const headerCellSx = {
+  fontWeight: 700,
+  color: "primary.dark",
+  whiteSpace: "nowrap" as const,
+  borderBottom: "2px solid",
+  borderBottomColor: "divider",
+};
+
 interface HourlySummaryTableProps {
   rows: HourRow[];
 }
@@ -50,9 +58,9 @@ export function HourlySummaryTable({ rows }: HourlySummaryTableProps) {
         <Table size="small" sx={{ minWidth: 640 }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={paramCellSx}>Param</TableCell>
+              <TableCell sx={{ ...paramCellSx, ...headerCellSx }}>Param</TableCell>
               {rows.map((row) => (
-                <TableCell key={row.bucket.startMs} align="right" sx={{ whiteSpace: "nowrap" }}>
+                <TableCell key={row.bucket.startMs} align="right" sx={headerCellSx}>
                   {formatIstTime(new Date(row.bucket.startMs).toISOString())} –{" "}
                   {formatIstTime(new Date(row.bucket.endMs).toISOString())}
                 </TableCell>
@@ -60,8 +68,8 @@ export function HourlySummaryTable({ rows }: HourlySummaryTableProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {ROWS.map((rowDef) => (
-              <TableRow key={rowDef.label}>
+            {ROWS.map((rowDef, index) => (
+              <TableRow key={rowDef.label} sx={{ bgcolor: index % 2 === 1 ? "action.hover" : undefined }}>
                 <TableCell sx={paramCellSx}>{rowDef.label}</TableCell>
                 {rows.map((row) => (
                   <TableCell key={row.bucket.startMs} align="right">
