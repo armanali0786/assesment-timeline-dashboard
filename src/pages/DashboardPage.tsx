@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { AppShell } from "@/layout/AppShell";
 import { FilterBar } from "@/dashboard/FilterBar";
+import { TimelineChart } from "@/dashboard/chart/TimelineChart";
 import { useAssetTreeQuery, useCycleTimeMetricsQuery, useMachineIntervalsQuery, useShiftsQuery } from "@/dashboard/useDashboardData";
 import { useShiftTimeRange, useShiftWindowOptions } from "@/dashboard/useShiftWindow";
 import type { DashboardFilters } from "@/dashboard/types";
@@ -20,7 +21,7 @@ export function DashboardPage() {
 
   const assetTreeQuery = useAssetTreeQuery();
   const shiftsQuery = useShiftsQuery();
-  const assetOptions = flattenAssetTree(assetTreeQuery.data ?? []);
+  const assetOptions = useMemo(() => flattenAssetTree(assetTreeQuery.data ?? []), [assetTreeQuery.data]);
   const shiftWindowOptions = useShiftWindowOptions(shiftsQuery.data);
 
   useEffect(() => {
@@ -72,17 +73,19 @@ export function DashboardPage() {
             <CircularProgress />
           </Box>
         ) : (
-          <Stack spacing={1}>
-            <Typography variant="subtitle2">
-              runtimes: {intervalsQuery.data?.runtimes.length ?? 0} · downtimes: {intervalsQuery.data?.downtimes.length ?? 0} ·
-              stoppages: {intervalsQuery.data?.stoppages.length ?? 0} · produce_counts: {intervalsQuery.data?.produce_counts.length ?? 0} ·
-              produces buckets: {intervalsQuery.data?.produces?.length ?? 0} · cycle-time buckets: {cycleTimeQuery.data?.length ?? 0}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Chart and hourly table replace this raw view in the next phases.
-            </Typography>
-          </Stack>
+          intervalsQuery.data &&
+          timeRange && (
+            <TimelineChart
+              intervals={intervalsQuery.data}
+              timeRange={timeRange}
+              showIndividualProduces={filters.showIndividualProduces}
+            />
+          )
         )}
+
+        <Typography variant="caption" color="text.secondary">
+          cycle-time buckets: {cycleTimeQuery.data?.length ?? 0} · Hourly summary table lands in the next phase.
+        </Typography>
       </Stack>
     </AppShell>
   );
